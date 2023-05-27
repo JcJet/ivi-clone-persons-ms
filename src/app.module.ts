@@ -19,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       entities: [],
       synchronize: true,
     }),
+    TypeOrmModule.forFeature([]),
   ],
   controllers: [AppController],
   providers: [AppService],
