@@ -25,4 +25,13 @@ export class AppController {
     );
     return this.appService.updatePerson(data.personId, data.updatePersonDto);
   }
+
+  @MessagePattern({ cmd: 'deletePerson' })
+  async deletePerson(data: { personId: number }) {
+    console.log(
+      'Persons MS - Persons Controller - deletePerson at',
+      new Date(),
+    );
+    return this.appService.deletePerson(data.personId);
+  }
 }

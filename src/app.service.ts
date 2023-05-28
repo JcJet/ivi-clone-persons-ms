@@ -22,4 +22,9 @@ export class AppService {
       updatePersonDto,
     );
   }
+
+  async deletePerson(personId: number) {
+    console.log('Persons MS - Persons Service - deletePerson at', new Date());
+    return this.personRepository.delete({ personId: personId });
+  }
 }
