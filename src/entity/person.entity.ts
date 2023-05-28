@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Movie } from './movie.entity';
 
 @Entity()
 export class Person {
@@ -30,6 +37,6 @@ export class Person {
   })
   biography: string;
 
-  // @ManyToMany(() => Movie, ())
+  // @ManyToMany(() => Movie)
   // movies: Movie;
 }

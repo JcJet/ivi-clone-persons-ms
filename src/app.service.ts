@@ -3,11 +3,14 @@ import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
 import { Repository } from 'typeorm';
+import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
+import { Movie } from './entity/movie.entity';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectRepository(Person) private personRepository: Repository<Person>,
+    @InjectRepository(Movie) private movieRepository: Repository<Movie>,
   ) {}
 
   async createPerson(createPersonDto: CreatePersonDto) {
@@ -31,5 +34,66 @@ export class AppService {
   async getPersonById(personId: number) {
     console.log('Persons MS - Persons Service - getPersonById at', new Date());
     return this.personRepository.findOneBy({ personId: personId });
+  }
+
+  async addPersonsToMovie(data: AddPersonsToMovieDto) {
+    console.log(
+      'Persons MS - Persons Service - addPersonsToMovie at',
+      new Date(),
+    );
+    if (!(await this.movieRepository.findOneBy({ movieId: data.movieId }))) {
+      const movie = await this.movieRepository.save({ movieId: data.movieId });
+      return this.addPersonsEntityToMovieEntity(movie, data);
+    } else {
+      const movie = await this.movieRepository.findOneBy({
+        movieId: data.movieId,
+      });
+      return this.addPersonsEntityToMovieEntity(movie, data);
+    }
+  }
+
+  async addPersonsEntityToMovieEntity(
+    movie: Movie,
+    data: AddPersonsToMovieDto,
+  ) {
+    movie.director = await Promise.all(
+      data.director.map(
+        async (directorId) =>
+          await this.personRepository.findOneBy({ personId: directorId }),
+      ),
+    );
+    movie.actors = await Promise.all(
+      data.actors.map(
+        async (actorId) =>
+          await this.personRepository.findOneBy({ personId: actorId }),
+      ),
+    );
+    movie.producer = await Promise.all(
+      data.producer.map(
+        async (producerId) =>
+          await this.personRepository.findOneBy({ personId: producerId }),
+      ),
+    );
+    movie.cinematographer = await Promise.all(
+      data.cinematographer.map(
+        async (cinematographerId) =>
+          await this.personRepository.findOneBy({
+            personId: cinematographerId,
+          }),
+      ),
+    );
+    movie.screenwriter = await Promise.all(
+      data.screenwriter.map(
+        async (screenwriterId) =>
+          await this.personRepository.findOneBy({ personId: screenwriterId }),
+      ),
+    );
+    movie.composer = await Promise.all(
+      data.composer.map(
+        async (composerId) =>
+          await this.personRepository.findOneBy({ personId: composerId }),
+      ),
+    );
+    return await this.movieRepository.save(movie);
   }
 }

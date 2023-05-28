@@ -24,6 +24,7 @@ async function bootstrap() {
     console.log('Database host: ', process.env.DATABASE_HOST);
     console.log('Database port: ', process.env.DATABASE_PORT);
   });
+  await app.listen(1234);
 }
 
 bootstrap();
