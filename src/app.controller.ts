@@ -71,4 +71,13 @@ export class AppController {
     );
     return this.appService.getMoviesByDirector(personId);
   }
+
+  @MessagePattern({ cmd: 'getMoviesByDirector' })
+  async getMoviePersons(movieId: number) {
+    console.log(
+      'Persons MS - Persons Controller - getMoviePersons at',
+      new Date(),
+    );
+    return this.appService.getMoviePersons(movieId);
+  }
 }

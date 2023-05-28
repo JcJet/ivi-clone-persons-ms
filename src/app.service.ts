@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
-import { ArrayContains, Repository } from "typeorm";
+import { ArrayContains, Repository } from 'typeorm';
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
 
@@ -80,10 +80,36 @@ export class AppService {
       .then((result) => result.map((movie) => movie.movieId));
   }
 
+  async getMoviePersons(movieId: number) {
+    console.log(
+      'Persons MS - Persons Service - getMoviePersons at',
+      new Date(),
+    );
+
+    return this.movieRepository.findOne({
+      relations: [
+        'actors',
+        'director',
+        'producer',
+        'cinematographer',
+        'screenwriter',
+        'composer',
+      ],
+      where: {
+        movieId: movieId,
+      },
+    });
+  }
+
   private async addPersonsEntityToMovieEntity(
     movie: Movie,
     data: AddPersonsToMovieDto,
   ) {
+    console.log(
+      'Persons MS - Persons Service - getMoviesByDirector at',
+      new Date(),
+    );
+
     movie.director = await Promise.all(
       data.director.map(
         async (directorId) =>
