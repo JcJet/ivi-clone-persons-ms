@@ -1,11 +1,8 @@
 import {
   Column,
   Entity,
-  JoinTable,
-  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Movie } from './movie.entity';
 
 @Entity()
 export class Person {
@@ -36,7 +33,4 @@ export class Person {
     default: 'No biography.',
   })
   biography: string;
-
-  // @ManyToMany(() => Movie)
-  // movies: Movie;
 }

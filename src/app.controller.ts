@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { MessagePattern } from '@nestjs/microservices';
@@ -45,13 +45,30 @@ export class AppController {
     return this.appService.getPersonById(data.personId);
   }
 
-  // @Get('addPersonsToMovie')
   @MessagePattern({ cmd: 'addPersonsToMovie' })
-  addPersonsToMovie(data: AddPersonsToMovieDto) {
+  async addPersonsToMovie(data: AddPersonsToMovieDto) {
     console.log(
       'Persons MS - Persons Controller - addPersonsToMovie at',
       new Date(),
     );
     return this.appService.addPersonsToMovie(data);
+  }
+
+  @MessagePattern({ cmd: 'getMoviesByActor' })
+  async getMoviesByActor(personId: number) {
+    console.log(
+      'Persons MS - Persons Controller - getMoviesByActor at',
+      new Date(),
+    );
+    return this.appService.getMoviesByActor(personId);
+  }
+
+  @MessagePattern({ cmd: 'getMoviesByDirector' })
+  async getMoviesByDirector(personId: number) {
+    console.log(
+      'Persons MS - Persons Controller - getMoviesByDirector at',
+      new Date(),
+    );
+    return this.appService.getMoviesByDirector(personId);
   }
 }
