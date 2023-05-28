@@ -80,4 +80,10 @@ export class AppController {
     );
     return this.appService.getMoviePersons(movieId);
   }
+
+  @MessagePattern({ cmd: 'deleteMovie' })
+  async deleteMovie(movieId: number) {
+    console.log('Persons MS - Persons Controller - deleteMovie at', new Date());
+    return this.appService.deleteMovie(movieId);
+  }
 }

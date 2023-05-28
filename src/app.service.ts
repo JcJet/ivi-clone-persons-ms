@@ -101,6 +101,11 @@ export class AppService {
     });
   }
 
+  async deleteMovie(movieId: number) {
+    console.log('Persons MS - Persons Service - deleteMovie at', new Date());
+    return this.movieRepository.delete({ movieId: movieId });
+  }
+
   private async addPersonsEntityToMovieEntity(
     movie: Movie,
     data: AddPersonsToMovieDto,
