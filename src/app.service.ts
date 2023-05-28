@@ -14,4 +14,12 @@ export class AppService {
     console.log('Persons MS - Persons Service - createPerson at', new Date());
     return this.personRepository.save(createPersonDto);
   }
+
+  async updatePerson(personId: number, updatePersonDto: CreatePersonDto) {
+    console.log('Persons MS - Persons Service - updatePerson at', new Date());
+    return this.personRepository.update(
+      { personId: personId },
+      updatePersonDto,
+    );
+  }
 }
