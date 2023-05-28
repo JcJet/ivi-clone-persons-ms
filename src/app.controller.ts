@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
+import { CreatePersonDto } from './dto/create-person.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @MessagePattern({ cmd: 'createPerson' })
+  async createPerson(data: { createPersonDto: CreatePersonDto }) {
+    console.log(
+      'Persons MS - Persons Controller - createPerson at',
+      new Date(),
+    );
+    return this.appService.createPerson(data.createPersonDto);
   }
 }

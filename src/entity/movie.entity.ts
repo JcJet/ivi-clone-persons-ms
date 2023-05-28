@@ -1,7 +1,11 @@
 import { Person } from './person.entity';
-import { ManyToMany } from 'typeorm';
+import { Entity, ManyToMany, PrimaryColumn } from 'typeorm';
 
+@Entity()
 export class Movie {
+  @PrimaryColumn()
+  movieId: number;
+
   @ManyToMany(() => Person)
   actors: Person[];
 

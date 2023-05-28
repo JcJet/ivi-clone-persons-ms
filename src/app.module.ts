@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Movie } from './entity/movie.entity';
+import { Person } from './entity/person.entity';
 
 @Module({
   imports: [
@@ -16,10 +18,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [],
+      entities: [Person, Movie],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature([Person, Movie]),
   ],
   controllers: [AppController],
   providers: [AppService],
