@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { MessagePattern } from '@nestjs/microservices';
-import { UpdatePersonMessageDto } from "./dto/update-person-message.dto";
+import { UpdatePersonMessageDto } from './dto/update-person-message.dto';
 
 @Controller()
 export class AppController {
@@ -33,5 +33,14 @@ export class AppController {
       new Date(),
     );
     return this.appService.deletePerson(data.personId);
+  }
+
+  @MessagePattern({ cmd: 'getPersonById' })
+  async getPersonById(data: { personId: number }) {
+    console.log(
+      'Persons MS - Persons Controller - getPersonById at',
+      new Date(),
+    );
+    return this.appService.getPersonById(data.personId);
   }
 }

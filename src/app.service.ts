@@ -27,4 +27,9 @@ export class AppService {
     console.log('Persons MS - Persons Service - deletePerson at', new Date());
     return this.personRepository.delete({ personId: personId });
   }
+
+  async getPersonById(personId: number) {
+    console.log('Persons MS - Persons Service - getPersonById at', new Date());
+    return this.personRepository.findOneBy({ personId: personId });
+  }
 }
