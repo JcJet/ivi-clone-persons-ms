@@ -47,7 +47,7 @@ export class AppController {
 
   // @Get('addPersonsToMovie')
   @MessagePattern({ cmd: 'addPersonsToMovie' })
-  addPersonsToMovie(@Body() data: AddPersonsToMovieDto) {
+  addPersonsToMovie(data: AddPersonsToMovieDto) {
     console.log(
       'Persons MS - Persons Controller - addPersonsToMovie at',
       new Date(),
