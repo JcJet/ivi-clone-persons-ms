@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
-import { ArrayContains, Repository } from 'typeorm';
+import { ArrayContains, Like, Repository } from "typeorm";
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
 
@@ -104,6 +104,19 @@ export class AppService {
   async deleteMovie(movieId: number) {
     console.log('Persons MS - Persons Service - deleteMovie at', new Date());
     return this.movieRepository.delete({ movieId: movieId });
+  }
+
+  async findPersonByName(personName: string) {
+    console.log(
+      'Persons MS - Persons Service - findPersonByName at',
+      new Date(),
+    );
+    return this.personRepository
+      .createQueryBuilder('person')
+      .select()
+      .where('person.nameRu ilike :name', { name: `%${personName}%` })
+      .orWhere('person.nameEn ilike :name', { name: `%${personName}%` })
+      .execute();
   }
 
   private async addPersonsEntityToMovieEntity(

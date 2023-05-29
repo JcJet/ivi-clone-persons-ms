@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Param } from "@nestjs/common";
 import { AppService } from './app.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { MessagePattern } from '@nestjs/microservices';
@@ -85,5 +85,14 @@ export class AppController {
   async deleteMovie(movieId: number) {
     console.log('Persons MS - Persons Controller - deleteMovie at', new Date());
     return this.appService.deleteMovie(movieId);
+  }
+
+  @MessagePattern({ cmd: 'findPersonByName' })
+  async findPersonByName(personName: string) {
+    console.log(
+      'Persons MS - Persons Controller - findPersonByName at',
+      new Date(),
+    );
+    return this.appService.findPersonByName(personName);
   }
 }
