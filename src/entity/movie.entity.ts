@@ -20,11 +20,11 @@ export class Movie {
 
   @JoinTable()
   @ManyToMany(() => Person)
-  cinematographer: Person[];
+  operator: Person[];
 
   @JoinTable()
   @ManyToMany(() => Person)
-  screenwriter: Person[];
+  editor: Person[];
 
   @JoinTable()
   @ManyToMany(() => Person)

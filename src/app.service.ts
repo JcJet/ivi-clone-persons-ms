@@ -91,8 +91,8 @@ export class AppService {
         'actors',
         'director',
         'producer',
-        'cinematographer',
-        'screenwriter',
+        'operator',
+        'editor',
         'composer',
       ],
       where: {
@@ -113,7 +113,14 @@ export class AppService {
     );
     return this.personRepository
       .createQueryBuilder('person')
-      .select()
+      .select([
+        'person.personId as "personId"',
+        'person.nameRu as "nameRu"',
+        'person.nameEn as "nameEn"',
+        'person.photo as "photo"',
+        'person.description as "description"',
+        'person.biography as "biography"',
+      ])
       .where('person.nameRu ilike :name', { name: `%${personName}%` })
       .orWhere('person.nameEn ilike :name', { name: `%${personName}%` })
       .execute();
@@ -124,7 +131,7 @@ export class AppService {
     data: AddPersonsToMovieDto,
   ) {
     console.log(
-      'Persons MS - Persons Service - getMoviesByDirector at',
+      'Persons MS - Persons Service - addPersonsEntityToMovieEntity at',
       new Date(),
     );
 
@@ -146,16 +153,16 @@ export class AppService {
           await this.personRepository.findOneBy({ personId: producerId }),
       ),
     );
-    movie.cinematographer = await Promise.all(
-      data.cinematographer.map(
+    movie.operator = await Promise.all(
+      data.operator.map(
         async (cinematographerId) =>
           await this.personRepository.findOneBy({
             personId: cinematographerId,
           }),
       ),
     );
-    movie.screenwriter = await Promise.all(
-      data.screenwriter.map(
+    movie.editor = await Promise.all(
+      data.editor.map(
         async (screenwriterId) =>
           await this.personRepository.findOneBy({ personId: screenwriterId }),
       ),

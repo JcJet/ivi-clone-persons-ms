@@ -3,7 +3,7 @@ export class AddPersonsToMovieDto {
   readonly director: number[];
   readonly actors: number[];
   readonly producer: number[];
-  readonly cinematographer: number[];
-  readonly screenwriter: number[];
+  readonly operator: number[];
+  readonly editor: number[];
   readonly composer: number[];
 }

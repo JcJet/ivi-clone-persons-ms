@@ -72,7 +72,7 @@ export class AppController {
     return this.appService.getMoviesByDirector(personId);
   }
 
-  @MessagePattern({ cmd: 'getMoviesByDirector' })
+  @MessagePattern({ cmd: 'getMoviePersons' })
   async getMoviePersons(movieId: number) {
     console.log(
       'Persons MS - Persons Controller - getMoviePersons at',
@@ -88,11 +88,11 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'findPersonByName' })
-  async findPersonByName(personName: string) {
+  async findPersonByName(personName: { personName: string }) {
     console.log(
       'Persons MS - Persons Controller - findPersonByName at',
       new Date(),
     );
-    return this.appService.findPersonByName(personName);
+    return this.appService.findPersonByName(personName.personName);
   }
 }
