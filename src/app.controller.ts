@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { MessagePattern } from '@nestjs/microservices';

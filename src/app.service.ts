@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
-import { ArrayContains, Like, Repository } from "typeorm";
+import { Repository } from 'typeorm';
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
 
