@@ -55,7 +55,7 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'getMoviesByActor' })
-  async getMoviesByActor(personId: number) {
+  async getMoviesByActor(personId: any) {
     console.log(
       'Persons MS - Persons Controller - getMoviesByActor at',
       new Date(),
@@ -81,10 +81,10 @@ export class AppController {
     return this.appService.getMoviePersons(movieId);
   }
 
-  @MessagePattern({ cmd: 'deleteMovie' })
-  async deleteMovie(movieId: number) {
+  @MessagePattern({ cmd: 'deleteMovieFromPersons' })
+  async deleteMovie(data: { movieId: number }) {
     console.log('Persons MS - Persons Controller - deleteMovie at', new Date());
-    return this.appService.deleteMovie(movieId);
+    return this.appService.deleteMovie(data);
   }
 
   @MessagePattern({ cmd: 'findPersonByName' })

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
-import { Repository } from 'typeorm';
+import { ArrayContains, In, Repository } from 'typeorm';
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
 
@@ -52,7 +52,7 @@ export class AppService {
     }
   }
 
-  async getMoviesByActor(personId: number) {
+  async getMoviesByActor(personId: { personId }) {
     console.log(
       'Persons MS - Persons Service - getMoviesByActor at',
       new Date(),
@@ -60,13 +60,12 @@ export class AppService {
     return this.movieRepository
       .find({
         where: {
-          actors: { personId: personId },
+          actors: { personId: personId.personId },
         },
       })
       .then((result) => result.map((movie) => movie.movieId));
   }
-
-  async getMoviesByDirector(personId: number) {
+  async getMoviesByDirector(personId: any) {
     console.log(
       'Persons MS - Persons Service - getMoviesByDirector at',
       new Date(),
@@ -74,7 +73,7 @@ export class AppService {
     return this.movieRepository
       .find({
         where: {
-          director: { personId: personId },
+          director: { personId: personId.personId },
         },
       })
       .then((result) => result.map((movie) => movie.movieId));
@@ -101,9 +100,9 @@ export class AppService {
     });
   }
 
-  async deleteMovie(movieId: number) {
+  async deleteMovie(data: { movieId: number }) {
     console.log('Persons MS - Persons Service - deleteMovie at', new Date());
-    return this.movieRepository.delete({ movieId: movieId });
+    return this.movieRepository.delete({ movieId: data.movieId });
   }
 
   async findPersonByName(personName: string) {
