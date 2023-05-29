@@ -88,11 +88,11 @@ export class AppController {
   }
 
   @MessagePattern({ cmd: 'findPersonByName' })
-  async findPersonByName(personName: { personName: string }) {
+  async findPersonByName(dto: { personName: string }) {
     console.log(
       'Persons MS - Persons Controller - findPersonByName at',
       new Date(),
     );
-    return this.appService.findPersonByName(personName.personName);
+    return this.appService.findPersonByName(dto.personName);
   }
 }
