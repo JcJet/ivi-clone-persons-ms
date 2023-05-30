@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Movie } from './entity/movie.entity';
 import { Person } from './entity/person.entity';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -22,6 +23,21 @@ import { Person } from './entity/person.entity';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Person, Movie]),
+    ClientsModule.registerAsync([
+      {
+        name: 'ToMoviesMs',
+        useFactory: () => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [process.env.RMQ_URL],
+            queue: 'toMoviesMs',
+            queueOptions: {
+              durable: false,
+            },
+          },
+        }),
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],

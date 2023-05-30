@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
 import { Repository } from 'typeorm';
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
+import { lastValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class AppService {
   constructor(
     @InjectRepository(Person) private personRepository: Repository<Person>,
     @InjectRepository(Movie) private movieRepository: Repository<Movie>,
+    @Inject('ToMoviesMs') private moviesRmqProxy: ClientProxy,
   ) {}
 
   async createPerson(createPersonDto: CreatePersonDto) {
@@ -33,7 +36,35 @@ export class AppService {
 
   async getPersonById(personId: number) {
     console.log('Persons MS - Persons Service - getPersonById at', new Date());
-    return this.personRepository.findOneBy({ personId: personId });
+
+    const person = await this.personRepository.findOneBy({
+      personId: personId,
+    });
+    const moviesObjects = await this.movieRepository.find({
+      where: [
+        { actors: person },
+        { director: person },
+        { editor: person },
+        { operator: person },
+        { composer: person },
+        { producer: person },
+      ],
+    });
+
+    const moviesIds = moviesObjects.map((movie) => movie.movieId);
+
+    const movies = await lastValueFrom(
+      await this.moviesRmqProxy.send(
+        { cmd: 'getMovies' },
+        {
+          movieFilterDto: {
+            ids: moviesIds,
+          },
+        },
+      ),
+    );
+
+    return { person: person, movies: movies };
   }
 
   async addPersonsToMovie(data: AddPersonsToMovieDto) {
@@ -193,6 +224,7 @@ export class AppService {
         'person.biography as "biography"',
       ])
       .where('person.nameEn ilike :name', { name: `%${dto.personName}%` })
+      .where('person.nameRu ilike :name', { name: `%${dto.personName}%` })
       .limit(5)
       .execute();
   }
