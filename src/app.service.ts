@@ -105,25 +105,26 @@ export class AppService {
     return this.movieRepository.delete({ movieId: data.movieId });
   }
 
-  async findPersonByName(personName: string) {
-    console.log(
-      'Persons MS - Persons Service - findPersonByName at',
-      new Date(),
-    );
-    return this.personRepository
-      .createQueryBuilder('person')
-      .select([
-        'person.personId as "personId"',
-        'person.nameRu as "nameRu"',
-        'person.nameEn as "nameEn"',
-        'person.photo as "photo"',
-        'person.description as "description"',
-        'person.biography as "biography"',
-      ])
-      .where('person.nameRu ilike :name', { name: `%${personName}%` })
-      .orWhere('person.nameEn ilike :name', { name: `%${personName}%` })
-      .execute();
-  }
+  // async findPersonByName(personName: string) {
+  //   console.log(
+  //     'Persons MS - Persons Service - findPersonByName at',
+  //     new Date(),
+  //   );
+  //   return this.personRepository
+  //     .createQueryBuilder('person')
+  //     .select([
+  //       'person.personId as "personId"',
+  //       'person.nameRu as "nameRu"',
+  //       'person.nameEn as "nameEn"',
+  //       'person.photo as "photo"',
+  //       'person.description as "description"',
+  //       'person.biography as "biography"',
+  //     ])
+  //     .where('person.nameRu ilike :name', { name: `%${personName}%` })
+  //     .orWhere('person.nameEn ilike :name', { name: `%${personName}%` })
+  //     .limit(5)
+  //     .execute();
+  // }
 
   private async addPersonsEntityToMovieEntity(
     movie: Movie,
@@ -173,5 +174,26 @@ export class AppService {
       ),
     );
     return await this.movieRepository.save(movie);
+  }
+
+  async findPersonByName(dto: { personName: string; position: string }) {
+    console.log(
+      'Persons MS - Persons Service - findActorByName at',
+      new Date(),
+    );
+    return this.movieRepository
+      .createQueryBuilder('movie')
+      .leftJoin(`movie.${dto.position}`, 'person')
+      .select([
+        'person.personId as "personId"',
+        'person.nameRu as "nameRu"',
+        'person.nameEn as "nameEn"',
+        'person.photo as "photo"',
+        'person.description as "description"',
+        'person.biography as "biography"',
+      ])
+      .where('person.nameEn ilike :name', { name: `%${dto.personName}%` })
+      .limit(5)
+      .execute();
   }
 }
