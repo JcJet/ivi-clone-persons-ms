@@ -1,32 +1,32 @@
 import { Person } from './person.entity';
-import { Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
+import {Entity, JoinColumn, JoinTable, ManyToMany, PrimaryColumn} from 'typeorm';
 
 @Entity()
 export class Movie {
   @PrimaryColumn()
   movieId: number;
 
-  @JoinTable()
   @ManyToMany(() => Person)
+  @JoinTable()
   actors: Person[];
 
-  @JoinTable()
   @ManyToMany(() => Person)
+  @JoinTable()
   director: Person[];
 
-  @JoinTable()
   @ManyToMany(() => Person)
+  @JoinTable()
   producer: Person[];
 
-  @JoinTable()
   @ManyToMany(() => Person)
+  @JoinTable()
   operator: Person[];
 
-  @JoinTable()
   @ManyToMany(() => Person)
+  @JoinTable()
   editor: Person[];
 
-  @JoinTable()
   @ManyToMany(() => Person)
+  @JoinTable()
   composer: Person[];
 }
