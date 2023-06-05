@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entity/person.entity';
@@ -6,7 +6,7 @@ import { In, Repository } from 'typeorm';
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
 import { lastValueFrom } from 'rxjs';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AppService {
@@ -23,6 +23,9 @@ export class AppService {
 
   async updatePerson(personId: number, updatePersonDto: CreatePersonDto) {
     console.log('Persons MS - Persons Service - updatePerson at', new Date());
+
+    const person = await this.getPersonById(personId);
+
     return this.personRepository.update(
       { personId: personId },
       updatePersonDto,
@@ -43,7 +46,9 @@ export class AppService {
       personId: personId,
     });
 
-    if (!data.person) return null;
+    if (!data.person) {
+      throw new RpcException(new NotFoundException('Person not found!'));
+    }
 
     const movies = [];
     const moviesObjects = await this.movieRepository.find({
@@ -97,6 +102,7 @@ export class AppService {
       'Persons MS - Persons Service - getMoviesByActor at',
       new Date(),
     );
+
     return this.movieRepository
       .find({
         where: {
