@@ -1,11 +1,12 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePersonDto } from './dto/create-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, In, Repository, UpdateResult } from 'typeorm';
+import { lastValueFrom } from 'rxjs';
+
+import { CreatePersonDto } from './dto/create-person.dto';
 import { Person } from './entity/person.entity';
-import { In, Repository } from 'typeorm';
 import { AddPersonsToMovieDto } from './dto/add-persons-to-movie.dto';
 import { Movie } from './entity/movie.entity';
-import { lastValueFrom } from 'rxjs';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 @Injectable()
@@ -16,15 +17,19 @@ export class AppService {
     @Inject('ToMoviesMs') private moviesRmqProxy: ClientProxy,
   ) {}
 
-  async createPerson(createPersonDto: CreatePersonDto) {
+  async createPerson(createPersonDto: CreatePersonDto): Promise<Person> {
     console.log('Persons MS - Persons Service - createPerson at', new Date());
+
     return this.personRepository.save(createPersonDto);
   }
 
-  async updatePerson(personId: number, updatePersonDto: CreatePersonDto) {
+  async updatePerson(
+    personId: number,
+    updatePersonDto: CreatePersonDto,
+  ): Promise<UpdateResult> {
     console.log('Persons MS - Persons Service - updatePerson at', new Date());
 
-    const person = await this.getPersonById(personId);
+    await this.getPersonById(personId);
 
     return this.personRepository.update(
       { personId: personId },
@@ -32,15 +37,21 @@ export class AppService {
     );
   }
 
-  async deletePerson(personId: number) {
+  async deletePerson(personId: number): Promise<DeleteResult> {
     console.log('Persons MS - Persons Service - deletePerson at', new Date());
+
     return this.personRepository.delete({ personId: personId });
   }
 
-  async getPersonById(personId: number) {
+  async getPersonById(
+    personId: number,
+  ): Promise<{ person: Person; movies: object[] }> {
     console.log('Persons MS - Persons Service - getPersonById at', new Date());
 
-    const data = { person: null, movies: null };
+    const data: { person: Person; movies: object[] } = {
+      person: null,
+      movies: null,
+    };
 
     data.person = await this.personRepository.findOneBy({
       personId: personId,
@@ -50,8 +61,7 @@ export class AppService {
       throw new RpcException(new NotFoundException('Person not found!'));
     }
 
-    const movies = [];
-    const moviesObjects = await this.movieRepository.find({
+    const moviesObjects: Movie[] = await this.movieRepository.find({
       where: [
         { actors: data.person },
         { director: data.person },
@@ -63,7 +73,7 @@ export class AppService {
     });
 
     if (moviesObjects.length > 0) {
-      const moviesIds = moviesObjects.map((movie) => movie.movieId);
+      const moviesIds: number[] = moviesObjects.map((movie) => movie.movieId);
 
       data.movies = await lastValueFrom(
         await this.moviesRmqProxy.send(
@@ -80,24 +90,20 @@ export class AppService {
     return data;
   }
 
-  async addPersonsToMovie(data: AddPersonsToMovieDto) {
+  async addPersonsToMovie(data: AddPersonsToMovieDto): Promise<Movie> {
     console.log(
       'Persons MS - Persons Service - addPersonsToMovie at',
       new Date(),
     );
 
-    if (!(await this.movieRepository.findOneBy({ movieId: data.movieId }))) {
-      const movie = await this.movieRepository.save({ movieId: data.movieId });
-      return this.addPersonsEntityToMovieEntity(movie, data);
-    } else {
-      const movie = await this.movieRepository.findOneBy({
-        movieId: data.movieId,
-      });
-      return this.addPersonsEntityToMovieEntity(movie, data);
-    }
+    const movie: Movie = await this.movieRepository.save({
+      movieId: data.movieId,
+    });
+
+    return this.addPersonsEntityToMovieEntity(movie, data);
   }
 
-  async getMoviesByActor(personId: { personId }) {
+  async getMoviesByActor(personId: { personId }): Promise<number[]> {
     console.log(
       'Persons MS - Persons Service - getMoviesByActor at',
       new Date(),
@@ -112,21 +118,7 @@ export class AppService {
       .then((result) => result.map((movie) => movie.movieId));
   }
 
-  async getMoviesByDirector(personId: any) {
-    console.log(
-      'Persons MS - Persons Service - getMoviesByDirector at',
-      new Date(),
-    );
-    return this.movieRepository
-      .find({
-        where: {
-          director: { personId: personId.personId },
-        },
-      })
-      .then((result) => result.map((movie) => movie.movieId));
-  }
-
-  async getMoviePersons(movieId: number) {
+  async getMoviePersons(movieId: number): Promise<Movie> {
     console.log(
       'Persons MS - Persons Service - getMoviePersons at',
       new Date(),
@@ -147,16 +139,45 @@ export class AppService {
     });
   }
 
-  async deleteMovie(data: { movieId: number }) {
+  async deleteMovie(data: { movieId: number }): Promise<DeleteResult> {
     console.log('Persons MS - Persons Service - deleteMovie at', new Date());
+
     return this.movieRepository.delete({ movieId: data.movieId });
   }
 
-  async findPersonByNameService(personName: string) {
+  async findPersonByName(dto: {
+    personName: string;
+    position: string;
+  }): Promise<Person[]> {
+    console.log(
+      'Persons MS - Persons Service - findActorByName at',
+      new Date(),
+    );
+
+    return this.movieRepository
+      .createQueryBuilder('movie')
+      .innerJoin(`movie.${dto.position}`, 'person')
+      .select([
+        'person.personId as "personId"',
+        'person.nameRu as "nameRu"',
+        'person.nameEn as "nameEn"',
+        'person.photo as "photo"',
+        'person.description as "description"',
+        'person.biography as "biography"',
+      ])
+      .where('person.nameEn ilike :name', { name: `%${dto.personName}%` })
+      .orWhere('person.nameRu ilike :name', { name: `%${dto.personName}%` })
+      .groupBy('person.personId')
+      .limit(5)
+      .execute();
+  }
+
+  async findPersonByNameService(personName: string): Promise<Person> {
     console.log(
       'Persons MS - Persons Service - findPersonByName at',
       new Date(),
     );
+
     return await this.personRepository.findOneBy({
       nameRu: personName,
     });
@@ -165,7 +186,7 @@ export class AppService {
   private async addPersonsEntityToMovieEntity(
     movie: Movie,
     data: AddPersonsToMovieDto,
-  ) {
+  ): Promise<Movie> {
     console.log(
       'Persons MS - Persons Service - addPersonsEntityToMovieEntity at',
       new Date(),
@@ -210,28 +231,5 @@ export class AppService {
     });
 
     return await this.movieRepository.save(movie);
-  }
-
-  async findPersonByName(dto: { personName: string; position: string }) {
-    console.log(
-      'Persons MS - Persons Service - findActorByName at',
-      new Date(),
-    );
-    return this.movieRepository
-      .createQueryBuilder('movie')
-      .innerJoin(`movie.${dto.position}`, 'person')
-      .select([
-        'person.personId as "personId"',
-        'person.nameRu as "nameRu"',
-        'person.nameEn as "nameEn"',
-        'person.photo as "photo"',
-        'person.description as "description"',
-        'person.biography as "biography"',
-      ])
-      .where('person.nameEn ilike :name', { name: `%${dto.personName}%` })
-      .orWhere('person.nameRu ilike :name', { name: `%${dto.personName}%` })
-      .groupBy('person.personId')
-      .limit(5)
-      .execute();
   }
 }

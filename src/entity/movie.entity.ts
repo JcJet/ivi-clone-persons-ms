@@ -1,5 +1,6 @@
+import { Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
+
 import { Person } from './person.entity';
-import {Entity, JoinColumn, JoinTable, ManyToMany, PrimaryColumn} from 'typeorm';
 
 @Entity()
 export class Movie {

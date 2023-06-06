@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { Movie } from './entity/movie.entity';
 import { Person } from './entity/person.entity';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
